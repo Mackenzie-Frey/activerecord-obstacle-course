@@ -168,7 +168,7 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    orders_of_user_3 = Order.where(user_id: 3)
+    orders_of_user_3 = Order
     # ------------------------------------------------------------
 
     # Expectation
@@ -232,12 +232,12 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [item_2, item_3, item_4, item_5]
 
     # ----------------------- Using Ruby -------------------------
-    order = Order.find(3)
-    grouped_items = order.items.sort_by { |item| item.name }
+    # order = Order.find(3)
+    # grouped_items = order.items.sort_by { |item| item.name }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    grouped_items = Order.find(3).items.group(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -248,16 +248,44 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 7', 'Thing 8', 'Thing 9', 'Thing 10']
 
     # ----------------------- Using Ruby -------------------------
-    names = Item.all.map(&:name)
+    # names = Item.all.map(&:name)
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    names = Item.pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
     expect(names).to eq(expected_result)
   end
+
+
+  #15 answer
+# names = Order.joins(:items).pluck(:name)
+# I could have swore that we tried this last night and it didn't work, but maybe we had an extra s somewhere or something.
+
+# names = Order.joins(:items).pluck(:name)
+# names = OrderItems(:item_id).pluck(:name)
+#
+# #Explanation
+# #Order.joins(:items) gives us access to all of the columns on the order table as well as the columns on the item table
+# # Definition of pluck: Use pluck as a shortcut to select one or more attributes without loading a bunch of records just to grab the attributes you want.
+# #Since name is a column on the items table which we now have access to, we can pluck them out.
+#
+# #16 answer
+#  users = User.joins(:order_items, :orders)
+# .where("order_items.item_id = ?", item_8.id)
+# .distinct
+# .pluck(:name)
+
+ #Explanation
+ # We have to join two tables because we need information from the users table and the item table.
+#There is no user_id on the item table so we first have to join the orders table since it does have a
+#user_id on it and then we joins the order_items table to get access to the individual items. I'm not
+#sure if you have seen the syntax inside the where method before, but it is basically used to stop sql injection issues.
+#If you don't know what that means yet, don't worry about it. Basically, whatever is after the comma (in this case item_8.id)
+#will be placed in the question mark. So essentially we are saying where the item_id from the order_items table = 8.
+#Then distinct means get rid of any duplicates and finally pluck the names of those people.
 
   it '15. gets all item names associated with all orders' do
     expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
@@ -287,7 +315,22 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    names = Order.select(:items)
+
+=begin
+select items.name
+from items
+  join order_items on items.id = order_items.item_id
+  join orders on orders.id = order_items.order_id
+order by orders.id
+
+Item.joins(:orders)
+  .order("orders.id asc")
+  .pluck(:name)
+=end
+# binding.pry
+    names = Item.joins(:orders).pluck(:name)
+    names = Order.joins(:items).pluck("items.name")
+
     # ------------------------------------------------------------
 
     # Expectation
@@ -316,7 +359,7 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    users = User.joins(:orders).joins(:order_items).where(items: item_8)
+    users = User.disinct.joins(:order_items).where("order_items.item_id=?", item_8)
     # ------------------------------------------------------------
 
     # Expectation
@@ -327,11 +370,11 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = ['Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
 
     # ----------------------- Using Ruby -------------------------
-    names = Order.last.items.all.map(&:name)
+    # names = Order.last.items.all.map(&:name)
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
+    # names = Order.names.where(id: )
     # ------------------------------------------------------------
 
     # Expectation
@@ -430,12 +473,14 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [order_3, order_5, order_9, order_10, order_11, order_13, order_15]
 
     # ------------------ Inefficient Solution -------------------
-    order_ids = OrderItem.where(item_id: item_4.id).map(&:order_id)
-    orders = order_ids.map { |id| Order.find(id) }
+    # order_ids = OrderItem.where(item_id: item_4.id).map(&:order_id)
+    # orders = order_ids.map { |id| Order.find(id) }
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    #  Solution goes here
+    # need orders & order_items
+    #
+    orders = Order.joins(:order_items).where("order_items.item_id=?", item_4.id)
     # -----------------------------------------------------------
 
     # Expectation
@@ -446,13 +491,13 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [order_5, order_11]
 
     # ------------------ Inefficient Solution -------------------
-    orders = Order.where(user_id: user_2)
-    order_ids = OrderItem.where(order_id: orders, item_id: item_4.id).map(&:order_id)
-    orders = order_ids.map { |id| Order.find(id) }
+    # orders = Order.where(user_id: user_2)
+    # order_ids = OrderItem.where(order_id: orders, item_id: item_4.id).map(&:order_id)
+    # orders = order_ids.map { |id| Order.find(id) }
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    #  Solution goes here
+    orders = Order.joins(:order_items).where("order_items.item_id=? AND orders.user_id=?", item_4.id, user_2.id)
     # -----------------------------------------------------------
 
     # Expectation
@@ -464,17 +509,17 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [item_1, item_2, item_3, item_4, item_5, item_7, item_8, item_9, item_10]
 
     # ----------------------- Using Ruby -------------------------
-    items = Item.all
-
-    ordered_items = items.map do |item|
-      item if item.orders.present?
-    end
-
-    ordered_items = ordered_items.compact
+    # items = Item.all
+    #
+    # ordered_items = items.map do |item|
+    #   item if item.orders.present?
+    # end
+    #
+    # ordered_items = ordered_items.compact
     # ------------------------------------------------------------
 
     # ------------------ ActiveRecord Solution ----------------------
-    # Solution goes here
+    ordered_items = Item.joins(:order_items).distinct
     # ---------------------------------------------------------------
 
     # Expectations
