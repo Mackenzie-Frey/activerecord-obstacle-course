@@ -467,14 +467,14 @@ Item.joins(:orders)
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    # orders = Order.joins(:order_items).where("order_items.item_id=? AND orders.user_id=?", item_4.id, user_2.id)
+    orders = Order.joins(:order_items).where("order_items.item_id=? AND orders.user_id=?", item_4.id, user_2.id)
     # -----------------------------------------------------------
 
     # Expectation
     expect(orders).to eq(expected_result)
   end
 
-  it '25. returns items that are associated with one or more orders' do
+  xit '25. returns items that are associated with one or more orders' do
     unordered_item = Item.create(name: 'Unordered Item')
     expected_result = [item_1, item_2, item_3, item_4, item_5, item_7, item_8, item_9, item_10]
 
