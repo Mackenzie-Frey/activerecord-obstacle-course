@@ -168,7 +168,7 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    orders_of_user_3 = Order
+    orders_of_user_3 = Order.where(user_id: 3)
     # ------------------------------------------------------------
 
     # Expectation
@@ -259,34 +259,6 @@ describe 'ActiveRecord Obstacle Course' do
     expect(names).to eq(expected_result)
   end
 
-
-  #15 answer
-# names = Order.joins(:items).pluck(:name)
-# I could have swore that we tried this last night and it didn't work, but maybe we had an extra s somewhere or something.
-
-# names = Order.joins(:items).pluck(:name)
-# names = OrderItems(:item_id).pluck(:name)
-#
-# #Explanation
-# #Order.joins(:items) gives us access to all of the columns on the order table as well as the columns on the item table
-# # Definition of pluck: Use pluck as a shortcut to select one or more attributes without loading a bunch of records just to grab the attributes you want.
-# #Since name is a column on the items table which we now have access to, we can pluck them out.
-#
-# #16 answer
-#  users = User.joins(:order_items, :orders)
-# .where("order_items.item_id = ?", item_8.id)
-# .distinct
-# .pluck(:name)
-
- #Explanation
- # We have to join two tables because we need information from the users table and the item table.
-#There is no user_id on the item table so we first have to join the orders table since it does have a
-#user_id on it and then we joins the order_items table to get access to the individual items. I'm not
-#sure if you have seen the syntax inside the where method before, but it is basically used to stop sql injection issues.
-#If you don't know what that means yet, don't worry about it. Basically, whatever is after the comma (in this case item_8.id)
-#will be placed in the question mark. So essentially we are saying where the item_id from the order_items table = 8.
-#Then distinct means get rid of any duplicates and finally pluck the names of those people.
-
   it '15. gets all item names associated with all orders' do
     expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
                        'Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
@@ -359,7 +331,7 @@ Item.joins(:orders)
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    users = User.disinct.joins(:order_items).where("order_items.item_id=?", item_8)
+    users = User.joins(:order_items).where("order_items.item_id=?", item_8).pluck(:name).uniq
     # ------------------------------------------------------------
 
     # Expectation
