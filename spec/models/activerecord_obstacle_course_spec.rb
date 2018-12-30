@@ -450,8 +450,6 @@ Item.joins(:orders)
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    # need orders & order_items
-    #
     orders = Order.joins(:order_items).where("order_items.item_id=?", item_4.id)
     # -----------------------------------------------------------
 
@@ -469,7 +467,7 @@ Item.joins(:orders)
     # -----------------------------------------------------------
 
     # ------------------ Improved Solution ----------------------
-    orders = Order.joins(:order_items).where("order_items.item_id=? AND orders.user_id=?", item_4.id, user_2.id)
+    # orders = Order.joins(:order_items).where("order_items.item_id=? AND orders.user_id=?", item_4.id, user_2.id)
     # -----------------------------------------------------------
 
     # Expectation
@@ -491,7 +489,7 @@ Item.joins(:orders)
     # ------------------------------------------------------------
 
     # ------------------ ActiveRecord Solution ----------------------
-    ordered_items = Item.joins(:order_items).distinct
+    # ordered_items = Item.joins(:order_items).distinct
     # ---------------------------------------------------------------
 
     # Expectations
