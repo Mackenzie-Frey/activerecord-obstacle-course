@@ -505,23 +505,25 @@ Item.joins(:orders)
 
   it '26. returns the names of items that are associated with one or more orders' do
     unordered_item_1 = Item.create(name: 'Unordered Item_1')
-    unordered_item_2 = Item.create(name: 'Unordered Item2_')
+    unordered_item_2 = Item.create(name: 'Unordered Item_2')
     unordered_item_3 = Item.create(name: 'Unordered Item_3')
 
     unordered_items = [unordered_item_1, unordered_item_2, unordered_item_3]
     expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 7', 'Thing 8', 'Thing 9', 'Thing 10']
 
     # ----------------------- Using Ruby -------------------------
-    items = Item.all
-
-    ordered_items = items.map do |item|
-      item if item.orders.present?
-    end.compact
-
-    ordered_items_names = ordered_items.map(&:name)
+    # items = Item.all
+    #
+    # ordered_items = items.map do |item|
+    #   item if item.orders.present?
+    # end.compact
+    #
+    # ordered_items_names = ordered_items.map(&:name)
     # ------------------------------------------------------------
 
     # ------------------ ActiveRecord Solution ----------------------
+    ordered_items_names = Item.joins(:order_items).distinct.pluck(:name)
+
     # Solution goes here
     # When you find a solution, experiment with adjusting your method chaining
     # Which ones are you able to switch around without relying on Ruby's Enumerable methods?
