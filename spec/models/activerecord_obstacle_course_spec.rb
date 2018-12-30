@@ -474,7 +474,7 @@ Item.joins(:orders)
     expect(orders).to eq(expected_result)
   end
 
-  xit '25. returns items that are associated with one or more orders' do
+  it '25. returns items that are associated with one or more orders' do
     unordered_item = Item.create(name: 'Unordered Item')
     expected_result = [item_1, item_2, item_3, item_4, item_5, item_7, item_8, item_9, item_10]
 
@@ -489,7 +489,7 @@ Item.joins(:orders)
     # ------------------------------------------------------------
 
     # ------------------ ActiveRecord Solution ----------------------
-    # ordered_items = Item.joins(:order_items).distinct
+    ordered_items = Item.joins(:order_items).distinct
     # ---------------------------------------------------------------
 
     # Expectations
