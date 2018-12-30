@@ -299,7 +299,7 @@ Item.joins(:orders)
   .order("orders.id asc")
   .pluck(:name)
 =end
-# binding.pry
+
     names = Item.joins(:orders).pluck(:name)
     names = Order.joins(:items).pluck("items.name")
 
@@ -346,7 +346,7 @@ Item.joins(:orders)
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
-    # names = Order.names.where(id: )
+    names = Order.last.items.pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
