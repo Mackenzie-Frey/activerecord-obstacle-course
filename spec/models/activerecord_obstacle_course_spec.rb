@@ -546,7 +546,7 @@ Item.joins(:orders)
     # Sal        |         5
 
     # ------------------ ActiveRecord Solution ----------------------
-    custom_results = User.joins(:orders).select("users.name, count(orders.id) as total_order_count").group(:user_id).order(:name)
+    custom_results = User.select("users.name, count(orders.id) as total_order_count").joins(:orders).group(:user_id).order(:name)
     # ---------------------------------------------------------------
 
     expect(custom_results[0].name).to eq(user_3.name)
@@ -569,7 +569,7 @@ Item.joins(:orders)
     # Dione      |         20
 
     # ------------------ ActiveRecord Solution ----------------------
-    custom_results = User.joins(:items).select("users.name, count(items.id) as total_item_count").group(:user_id).order(name: :desc)
+    custom_results = User.select("users.name, count(items.id) as total_item_count").joins(:items).group(:user_id).order(name: :desc)
     # ---------------------------------------------------------------
 
     expect(custom_results[0].name).to eq(user_2.name)
@@ -615,7 +615,7 @@ Item.joins(:orders)
     # how will you turn this into the proper ActiveRecord commands?
 
     # ------------------ ActiveRecord Solution ----------------------
-    # data = []
+    data = User.select("users.name as user_name, orders.id as order_id, count(order_items.id) as item_count").joins(orders: :order_items).group(:order_id).group(:user_name).order("user_name desc")
     # ---------------------------------------------------------------
 
 
@@ -630,7 +630,7 @@ Item.joins(:orders)
     expect(data[12].item_count).to eq(4)
   end
 
-  xit '30. returns the names of items that have been ordered without n+1 queries' do
+  it '30. returns the names of items that have been ordered without n+1 queries' do
     # What is an n+1 query?
     # This video is older, but the concepts explained are still relevant:
     # http://railscasts.com/episodes/372-bullet
